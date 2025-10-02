@@ -18,10 +18,26 @@ namespace CerealAPI.Controllers
 
         // GET: api/cereals
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cereal>>> GetCereals()
+        public async Task<ActionResult<IEnumerable<Cereal>>> GetCereals(
+            [FromQuery] string? mfr,
+            [FromQuery] int? calories,
+            [FromQuery] int? sugars)
         {
-            return await _context.Cereals.ToListAsync();
+            IQueryable<Cereal> query = _context.Cereals;
+
+            if (!string.IsNullOrEmpty(mfr))
+                query = query.Where(c => c.Mfr == mfr);
+
+            if (calories.HasValue)
+                query = query.Where(c => c.Calories == calories.Value);
+
+            if (sugars.HasValue)
+                query = query.Where(c => c.Sugars == sugars.Value);
+
+            var result = await query.ToListAsync();
+            return Ok(result);
         }
+
 
         // GET: api/cereals/5
         [HttpGet("{id}")]
