@@ -11,30 +11,20 @@ CerealContext: DbContext der håndterer Cereals og Users. Indeholder unikke inde
 AuthController: Håndterer login via POST /api/auth/login. Modtager LoginRequest med username og password, returnerer LoginResponse med JWT-token og udløbstid.
 
 CerealsController: Håndterer CRUD-operationer for cereals:
-
-GET /api/cereals – Hent alle produkter med mulighed for filtrering på producent (mfr), kalorier (caloriesMin, caloriesMax), sukker (sugarsMin, sugarsMax) og sortering (sort).
-
-GET /api/cereals/{id} – Hent et enkelt produkt efter ID.
-
-POST /api/cereals [admin] – Opret nyt produkt.
-
-PUT /api/cereals/{id} [admin] – Opdater eksisterende produkt.
-
-DELETE /api/cereals/{id} [admin] – Slet produkt.
+- GET /api/cereals – Hent alle produkter med mulighed for filtrering på producent (mfr), kalorier (caloriesMin, caloriesMax), sukker (sugarsMin, sugarsMax) og sortering (sort).
+- GET /api/cereals/{id} – Hent et enkelt produkt efter ID.
+- POST /api/cereals [admin] – Opret nyt produkt.
+- PUT /api/cereals/{id} [admin] – Opdater eksisterende produkt.
+- DELETE /api/cereals/{id} [admin] – Slet produkt.
 
 DTO’er:
-
-LoginRequest: indeholder Username og Password.
-
-LoginResponse: indeholder JWT Token og Expires tid.
+- LoginRequest: indeholder Username og Password.
+- LoginResponse: indeholder JWT Token og Expires tid.
 
 Autentifikation & Roller:
-
-Admin-brugere kan udføre alle CRUD-operationer.
-
-Almindelige brugere kan kun læse produkter.
-
-JWT-token indsættes via Swagger UI eller som Authorization header.
+- Admin-brugere kan udføre alle CRUD-operationer.
+- Almindelige brugere kan kun læse produkter.
+- JWT-token indsættes via Swagger UI eller som Authorization header.
 
 Swagger: API dokumenteres automatisk via Swagger UI med operation filter, der viser hvilke endpoints der kræver autentifikation og hvilken rolle der kræves.
 
