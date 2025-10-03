@@ -2,9 +2,9 @@
 {
     public class User
     {
-        public int Id { get; set; }
-        public string Username { get; set; }
-        public string PasswordHash { get; set; }
-        public string Role { get; set; } // admin eller user
+        public int Id { get; set; } // Primær nøgle
+        public string Username { get; set; } // Brugernavn
+        public string PasswordHash { get; set; } // Hash af password
+        public string Role { get; set; } // Rolle: "admin" eller "user"
     }
 }

@@ -9,7 +9,7 @@ namespace CerealAPI.Swagger
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            // Find Authorize attributter på metode og controller
+            // Find Authorize attributter på controller og metode
             var authorizeAttrs = context.MethodInfo.DeclaringType.GetCustomAttributes(true)
                                  .OfType<Microsoft.AspNetCore.Authorization.AuthorizeAttribute>()
                                  .ToList();
@@ -17,10 +17,10 @@ namespace CerealAPI.Swagger
             authorizeAttrs.AddRange(context.MethodInfo.GetCustomAttributes(true)
                                  .OfType<Microsoft.AspNetCore.Authorization.AuthorizeAttribute>());
 
-            if (!authorizeAttrs.Any())
-                return; // Ingen Authorize → ingen lås
+            if (!authorizeAttrs.Any()) 
+                return; // Ingen Authorize → ingen lås i Swagger
 
-            // Tilføj security definition
+            // Tilføj JWT security definition
             operation.Security = new List<OpenApiSecurityRequirement>
             {
                 new OpenApiSecurityRequirement
@@ -35,7 +35,7 @@ namespace CerealAPI.Swagger
                 }
             };
 
-            // Tilføj rolle-info som beskrivelse
+            // Tilføj rollebeskrivelse i Swagger
             var roles = authorizeAttrs.Where(a => !string.IsNullOrEmpty(a.Roles))
                                       .Select(a => a.Roles)
                                       .Distinct();

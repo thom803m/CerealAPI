@@ -19,7 +19,7 @@ namespace CerealAPI.Data
 
         public async Task SeedCerealsAsync()
         {
-            // Spring hvis der allerede er data
+            // Spring over, hvis der allerede er data
             if (await _context.Cereals.AnyAsync())
                 return;
 
@@ -30,14 +30,12 @@ namespace CerealAPI.Data
             using var reader = new StreamReader(filePath);
             using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                Delimiter = ";",          // Semikolon separator
+                Delimiter = ";", // Semikolon separator i steden for komma
                 HeaderValidated = null,
                 MissingFieldFound = null
             });
 
-            // Map CSV-kolonner til Cereal properties
             csv.Context.RegisterClassMap<CerealMap>();
-
             var cereals = csv.GetRecords<Cereal>().ToList();
 
             await _context.Cereals.AddRangeAsync(cereals);
@@ -45,14 +43,14 @@ namespace CerealAPI.Data
         }
     }
 
-    // Mapping mellem CSV og Cereal properties
+    // Map CSV-kolonner til Cereal properties
     public sealed class CerealMap : ClassMap<Cereal>
     {
         public CerealMap()
         {
-            Map(m => m.Name).Name("name");
-            Map(m => m.Mfr).Name("mfr");
-            Map(m => m.Type).Name("type");
+            Map(m => m.Name).Name("name");          // "name" i CSV til Name i Cereal
+            Map(m => m.Mfr).Name("mfr");            // "mfr" i CSV til Mfr i Cereal
+            Map(m => m.Type).Name("type");          // osv.
             Map(m => m.Calories).Name("calories");
             Map(m => m.Protein).Name("protein");
             Map(m => m.Fat).Name("fat");
@@ -66,7 +64,7 @@ namespace CerealAPI.Data
             Map(m => m.Weight).Name("weight");
             Map(m => m.Cups).Name("cups");
             Map(m => m.Rating).Name("rating");
-            // ImagePath er nullable, så vi springer den over
+            // ImagePath er nullable → vi springer billedhåndtering over
         }
     }
 }

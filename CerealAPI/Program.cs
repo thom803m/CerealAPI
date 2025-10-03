@@ -23,7 +23,6 @@ builder.Services.AddTransient<SeedService>();
 
 // JWT Authentication
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -75,13 +74,13 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 
-    // Tilføj operation filter
+    // Tilføj operation filter for rolle-beskrivelser
     c.OperationFilter<CerealAPI.Swagger.AuthorizeCheckOperationFilter>();
 });
 
 var app = builder.Build();
 
-// Kør SeedService async
+// Kør SeedService ved opstart
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
