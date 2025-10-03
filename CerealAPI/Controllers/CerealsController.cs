@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using CerealAPI.Data;
 using CerealAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CerealAPI.Controllers
 {
@@ -77,7 +78,7 @@ namespace CerealAPI.Controllers
         }
 
         // POST: api/cereals
-        [HttpPost]
+        [HttpPost, Authorize(Roles = "admin")]
         public async Task<ActionResult<Cereal>> PostCereal(Cereal cereal)
         {
             _context.Cereals.Add(cereal);
@@ -87,7 +88,7 @@ namespace CerealAPI.Controllers
         }
 
         // PUT: api/cereals/5
-        [HttpPut("{id}")]
+        [HttpPut("{id}"), Authorize(Roles = "admin")]
         public async Task<IActionResult> PutCereal(int id, Cereal cereal)
         {
             if (id != cereal.Id)
@@ -111,7 +112,7 @@ namespace CerealAPI.Controllers
         }
 
         // DELETE: api/cereals/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteCereal(int id)
         {
             var cereal = await _context.Cereals.FindAsync(id);

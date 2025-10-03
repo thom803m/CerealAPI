@@ -1,6 +1,7 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
 using CerealAPI.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 
 namespace CerealAPI.Data
@@ -16,10 +17,10 @@ namespace CerealAPI.Data
             _env = env;
         }
 
-        public void SeedCereals()
+        public async Task SeedCerealsAsync()
         {
             // Spring hvis der allerede er data
-            if (_context.Cereals.Any())
+            if (await _context.Cereals.AnyAsync())
                 return;
 
             var filePath = Path.Combine(_env.ContentRootPath, "Data", "SeedData", "Cereal.csv");
@@ -29,7 +30,7 @@ namespace CerealAPI.Data
             using var reader = new StreamReader(filePath);
             using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                Delimiter = ";",          // <-- vigtigt, semikolon separator
+                Delimiter = ";",          // Semikolon separator
                 HeaderValidated = null,
                 MissingFieldFound = null
             });
@@ -38,8 +39,9 @@ namespace CerealAPI.Data
             csv.Context.RegisterClassMap<CerealMap>();
 
             var cereals = csv.GetRecords<Cereal>().ToList();
-            _context.Cereals.AddRange(cereals);
-            _context.SaveChanges();
+
+            await _context.Cereals.AddRangeAsync(cereals);
+            await _context.SaveChangesAsync();
         }
     }
 
@@ -64,7 +66,7 @@ namespace CerealAPI.Data
             Map(m => m.Weight).Name("weight");
             Map(m => m.Cups).Name("cups");
             Map(m => m.Rating).Name("rating");
-            // ImagePath er nullable, så vi kan springe den over
+            // ImagePath er nullable, så vi springer den over
         }
     }
 }

@@ -1,6 +1,10 @@
 using CerealAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using CerealAPI.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +21,27 @@ builder.Services.AddControllers();
 // SeedService
 builder.Services.AddTransient<SeedService>();
 
+// JWT Authentication
+var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key)
+    };
+});
+
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -27,16 +52,41 @@ builder.Services.AddSwaggerGen(c =>
         Title = "Cereal API",
         Description = "API til håndtering af morgenmadsprodukter"
     });
+
+    // JWT authorization i Swagger UI
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Indsæt 'Bearer {token}'"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            new string[] {}
+        }
+    });
+
+    // Tilføj operation filter
+    c.OperationFilter<CerealAPI.Swagger.AuthorizeCheckOperationFilter>();
 });
 
 var app = builder.Build();
 
-// Kør SeedService for at loade Cereal.csv
+// Kør SeedService async
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var seed = services.GetRequiredService<SeedService>();
-    seed.SeedCereals();
+    await seed.SeedCerealsAsync();
 }
 
 // Swagger UI
@@ -47,7 +97,8 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();
