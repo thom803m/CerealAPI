@@ -4,7 +4,9 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using CerealAPI.Swagger; 
+using CerealAPI.Swagger;
+using CerealAPI.Interfaces;
+using CerealAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // Register DbContext
 builder.Services.AddDbContext<CerealContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+// Register repository
+builder.Services.AddScoped<ICerealRepository, CerealRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // Controllers
 builder.Services.AddControllers();
@@ -85,7 +91,9 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var seed = services.GetRequiredService<SeedService>();
+
     await seed.SeedCerealsAsync();
+    await seed.SeedAdminUserAsync();
 }
 
 // Swagger UI

@@ -3,6 +3,7 @@ using CsvHelper.Configuration;
 using CerealAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using CerealAPI.Interfaces;
 
 namespace CerealAPI.Data
 {
@@ -10,16 +11,17 @@ namespace CerealAPI.Data
     {
         private readonly CerealContext _context;
         private readonly IWebHostEnvironment _env;
+        private readonly IUserRepository _userRepo;
 
-        public SeedService(CerealContext context, IWebHostEnvironment env)
+        public SeedService(CerealContext context, IWebHostEnvironment env, IUserRepository userRepo)
         {
             _context = context;
             _env = env;
+            _userRepo = userRepo;
         }
 
         public async Task SeedCerealsAsync()
         {
-            // Spring over, hvis der allerede er data
             if (await _context.Cereals.AnyAsync())
                 return;
 
@@ -30,7 +32,7 @@ namespace CerealAPI.Data
             using var reader = new StreamReader(filePath);
             using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                Delimiter = ";", // Semikolon separator i steden for komma
+                Delimiter = ";",
                 HeaderValidated = null,
                 MissingFieldFound = null
             });
@@ -41,16 +43,32 @@ namespace CerealAPI.Data
             await _context.Cereals.AddRangeAsync(cereals);
             await _context.SaveChangesAsync();
         }
+
+        public async Task SeedAdminUserAsync()
+        {
+            // Spring over, hvis admin allerede findes
+            var existingAdmin = await _userRepo.GetUserByUsernameAsync("admin");
+            if (existingAdmin != null) return;
+
+            var adminUser = new User
+            {
+                Username = "admin",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("T1h2o3m4a5s6+"),
+                Role = "admin"
+            };
+
+            await _userRepo.AddUserAsync(adminUser);
+        }
     }
 
-    // Map CSV-kolonner til Cereal properties
+    // CSV mapping som før
     public sealed class CerealMap : ClassMap<Cereal>
     {
         public CerealMap()
         {
-            Map(m => m.Name).Name("name");          // "name" i CSV til Name i Cereal
-            Map(m => m.Mfr).Name("mfr");            // "mfr" i CSV til Mfr i Cereal
-            Map(m => m.Type).Name("type");          // osv.
+            Map(m => m.Name).Name("name");
+            Map(m => m.Mfr).Name("mfr");
+            Map(m => m.Type).Name("type");
             Map(m => m.Calories).Name("calories");
             Map(m => m.Protein).Name("protein");
             Map(m => m.Fat).Name("fat");
@@ -64,7 +82,6 @@ namespace CerealAPI.Data
             Map(m => m.Weight).Name("weight");
             Map(m => m.Cups).Name("cups");
             Map(m => m.Rating).Name("rating");
-            // ImagePath er nullable → vi springer billedhåndtering over
         }
     }
 }
