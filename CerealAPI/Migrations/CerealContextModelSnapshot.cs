@@ -3,7 +3,6 @@ using CerealAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
@@ -19,105 +18,99 @@ namespace CerealAPI.Migrations
                 .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
-
             modelBuilder.Entity("CerealAPI.Models.Cereal", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                b.Property<int>("Calories")
+                    .HasColumnType("int");
 
-                    b.Property<int>("Calories")
-                        .HasColumnType("int");
+                b.Property<double>("Carbo")
+                    .HasColumnType("double");
 
-                    b.Property<double>("Carbo")
-                        .HasColumnType("double");
+                b.Property<double>("Cups")
+                    .HasColumnType("double");
 
-                    b.Property<double>("Cups")
-                        .HasColumnType("double");
+                b.Property<int>("Fat")
+                    .HasColumnType("int");
 
-                    b.Property<int>("Fat")
-                        .HasColumnType("int");
+                b.Property<double>("Fiber")
+                    .HasColumnType("double");
 
-                    b.Property<double>("Fiber")
-                        .HasColumnType("double");
+                b.Property<string>("ImagePath")
+                    .HasColumnType("longtext");
 
-                    b.Property<string>("ImagePath")
-                        .HasColumnType("longtext");
+                b.Property<string>("Mfr")
+                    .IsRequired()
+                    .HasColumnType("longtext");
 
-                    b.Property<string>("Mfr")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("varchar(255)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
+                b.Property<int>("Potass")
+                    .HasColumnType("int");
 
-                    b.Property<int>("Potass")
-                        .HasColumnType("int");
+                b.Property<int>("Protein")
+                    .HasColumnType("int");
 
-                    b.Property<int>("Protein")
-                        .HasColumnType("int");
+                b.Property<double>("Rating")
+                    .HasColumnType("double");
 
-                    b.Property<double>("Rating")
-                        .HasColumnType("double");
+                b.Property<int>("Shelf")
+                    .HasColumnType("int");
 
-                    b.Property<int>("Shelf")
-                        .HasColumnType("int");
+                b.Property<int>("Sodium")
+                    .HasColumnType("int");
 
-                    b.Property<int>("Sodium")
-                        .HasColumnType("int");
+                b.Property<int>("Sugars")
+                    .HasColumnType("int");
 
-                    b.Property<int>("Sugars")
-                        .HasColumnType("int");
+                b.Property<string>("Type")
+                    .IsRequired()
+                    .HasColumnType("longtext");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                b.Property<int>("Vitamins")
+                    .HasColumnType("int");
 
-                    b.Property<int>("Vitamins")
-                        .HasColumnType("int");
+                b.Property<double>("Weight")
+                    .HasColumnType("double");
 
-                    b.Property<double>("Weight")
-                        .HasColumnType("double");
+                b.HasKey("Id");
 
-                    b.HasKey("Id");
+                b.HasIndex("Name")
+                    .IsUnique();
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Cereals");
-                });
+                b.ToTable("Cereals");
+            });
 
             modelBuilder.Entity("CerealAPI.Models.User", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                b.Property<string>("PasswordHash")
+                    .IsRequired()
+                    .HasColumnType("longtext");
 
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                b.Property<string>("Role")
+                    .IsRequired()
+                    .HasColumnType("longtext");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                b.Property<string>("Username")
+                    .IsRequired()
+                    .HasColumnType("varchar(255)");
 
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
+                b.HasKey("Id");
 
-                    b.HasKey("Id");
+                b.HasIndex("Username")
+                    .IsUnique();
 
-                    b.HasIndex("Username")
-                        .IsUnique();
-
-                    b.ToTable("Users");
-                });
+                b.ToTable("Users");
+            });
 #pragma warning restore 612, 618
         }
     }

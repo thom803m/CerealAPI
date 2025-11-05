@@ -22,8 +22,6 @@ namespace CerealAPI.Migrations
                 .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
-
             modelBuilder.Entity("CerealAPI.Models.Cereal", b =>
                 {
                     b.Property<int>("Id")
