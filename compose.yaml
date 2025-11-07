@@ -1,0 +1,39 @@
+services:
+    
+    db:
+        image: mysql:8.0
+        container_name: cereal_db
+        restart: always
+        environment:
+          MYSQL_DATABASE: cereal_db
+          MYSQL_USER: cereal_user
+          MYSQL_PASSWORD: T1h2o3m4a5s6
+          MYSQL_ROOT_PASSWORD: T1h2o3m4a5s6
+        ports:
+          - "3306:3306"
+        volumes:
+          - db-data:/var/lib/mysql
+          # - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+        # healthcheck:
+        #   test: ["CMD", "mysqladmin", "ping", "-h", "db", "-u", "root", "-pT1h2o3m4a5s6"]
+        #   interval: 10s
+        #   timeout: 5s
+        #   retries: 5
+
+    # cerealapi:
+    #     container_name: cerealapi
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile
+    #     ports:
+    #         - "5000:8080"
+    #     environment:
+    #         - ConnectionStrings__DefaultConnection=server=db;port=3307;database=cereal_db;user=root;password=T1h2o3m4a5s6
+    #     depends_on:
+    #         db:
+    #             condition: service_healthy
+
+  
+
+volumes:
+  db-data:

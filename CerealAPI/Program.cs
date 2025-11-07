@@ -15,7 +15,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 // Register DbContext
 builder.Services.AddDbContext<CerealContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
+    options => options.EnableRetryOnFailure()));
 
 // Register repository
 builder.Services.AddScoped<ICerealRepository, CerealRepository>();
@@ -86,12 +87,33 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Kør SeedService ved opstart
+// Kør SeedService ved opstart med retry, hvis MySQL ikke er klar
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var seed = services.GetRequiredService<SeedService>();
+    var db = services.GetRequiredService<CerealContext>();
 
+    // Retry loop for MySQL
+    bool dbReady = false;
+    int retries = 0;
+    while (!dbReady && retries < 10)
+    {
+        try
+        {
+            if (db.Database.CanConnect())
+            {
+                dbReady = true;
+            }
+        }
+        catch
+        {
+            retries++;
+            Console.WriteLine("MySQL ikke klar, venter 3 sekunder...");
+            await Task.Delay(3000);
+        }
+    }
+
+    var seed = services.GetRequiredService<SeedService>();
     await seed.SeedCerealsAsync();
     await seed.SeedAdminUserAsync();
 }
